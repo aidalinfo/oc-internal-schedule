@@ -2,6 +2,15 @@
   "name": "@aidalinfo/oc-internal-schedule",
   "version": "0.1.0",
   "description": "OpenCode plugin that schedules self-messages back into the current session.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aidalinfo/oc-internal-schedule"
+  },
+  "homepage": "https://github.com/aidalinfo/oc-internal-schedule",
+  "bugs": {
+    "url": "https://github.com/aidalinfo/oc-internal-schedule/issues"
+  },
   "type": "module",
   "main": "./index.js",
   "files": [
