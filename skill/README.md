@@ -1,12 +1,22 @@
 # Skills Setup
 
-To let OpenCode discover the companion skill from this repository, add the path below to your OpenCode config:
+OpenCode currently resolves skills from paths or URLs, not directly from npm package names.
+
+To use the bundled skill from the published npm package, first install the package into a stable local directory:
+
+```bash
+npm install --prefix ~/.config/opencode/vendor @aidalinfo/oc-internal-schedule
+```
+
+Then add the installed `skill/` directory to your OpenCode config:
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
   "skills": {
-    "paths": ["/home/killian/Documents/dev/oc-internal-schedule/skill"]
+    "paths": [
+      "~/.config/opencode/vendor/node_modules/@aidalinfo/oc-internal-schedule/skill"
+    ]
   }
 }
 ```

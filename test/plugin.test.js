@@ -65,6 +65,46 @@ test("schedule_self_message tool injects a deferred prompt into the current sess
   assert.equal(calls[0].input.body.noReply, false);
 });
 
+test("plugin injects scheduler guidance into system prompt and tool definitions", async () => {
+  const dir = await fs.mkdtemp(
+    path.join(os.tmpdir(), "oc-internal-schedule-plugin-guidance-"),
+  );
+  process.env.OPENCODE_INTERNAL_SCHEDULE_STORE = path.join(dir, "jobs.json");
+
+  const mod = await import(`../index.js?test=guidance-${Date.now()}`);
+  const hooks = await mod.InternalSchedulePlugin({
+    client: {
+      session: {
+        async prompt() {
+          return { data: undefined };
+        },
+        async promptAsync() {
+          return { data: undefined };
+        },
+      },
+    },
+    project: { id: "proj_test_plugin_guidance" },
+  });
+
+  const output = { system: [] };
+  await hooks["experimental.chat.system.transform"](
+    { sessionID: "ses_guidance", model: { id: "x" } },
+    output,
+  );
+  assert.equal(output.system.length, 1);
+  assert.match(output.system[0], /schedule_self_message/);
+
+  const toolOutput = { description: "old", parameters: {} };
+  await hooks["tool.definition"](
+    { toolID: "schedule_self_message" },
+    toolOutput,
+  );
+  assert.match(
+    toolOutput.description,
+    /future message back into the current OpenCode session/,
+  );
+});
+
 test("schedule_self_message uses prompt_async for silent reminders", async () => {
   const dir = await fs.mkdtemp(
     path.join(os.tmpdir(), "oc-internal-schedule-plugin-silent-"),

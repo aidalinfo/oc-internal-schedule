@@ -17,6 +17,24 @@ const STORE_PATH =
   );
 const STATE_KEY = Symbol.for("oc-internal-schedule.state");
 
+const SCHEDULER_SYSTEM_GUIDANCE = [
+  "If the user asks you to remind yourself later, check something again after a delay, or monitor something periodically, use the internal scheduling tools from this plugin.",
+  "Use `schedule_self_message` for delayed or recurring follow-up in the current session.",
+  "Use `list_scheduled_self_messages` before creating a new reminder if a duplicate is possible.",
+  "Use `cancel_scheduled_self_message` when a reminder is obsolete or the user changes direction.",
+  "Prefer one-shot reminders for a single delayed follow-up and recurring reminders only for ongoing monitoring.",
+  "By default, scheduled reminders should generate a visible assistant reply in the session unless the user explicitly wants a silent reminder.",
+].join("\n");
+
+const TOOL_DESCRIPTION_OVERRIDES = {
+  schedule_self_message:
+    "Schedule a future message back into the current OpenCode session. Use this when the user wants you to check something later or periodically.",
+  list_scheduled_self_messages:
+    "List delayed or recurring self-reminders already scheduled for the current session or project.",
+  cancel_scheduled_self_message:
+    "Cancel a delayed or recurring self-reminder that is no longer needed.",
+};
+
 function getGlobalState() {
   if (!globalThis[STATE_KEY]) {
     globalThis[STATE_KEY] = {
@@ -241,6 +259,13 @@ export async function InternalSchedulePlugin({ client, project }) {
   await manager.restoreProject(project.id);
 
   return {
+    "experimental.chat.system.transform": async (_input, output) => {
+      output.system.push(SCHEDULER_SYSTEM_GUIDANCE);
+    },
+    "tool.definition": async (input, output) => {
+      const override = TOOL_DESCRIPTION_OVERRIDES[input.toolID];
+      if (override) output.description = override;
+    },
     tool: {
       schedule_self_message: tool({
         description:

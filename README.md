@@ -19,37 +19,33 @@ These tools automatically use the current OpenCode `sessionID`.
 
 ## Install into OpenCode
 
-1. Install this plugin's dependencies once:
+OpenCode can load the plugin directly from npm by package name.
 
-```bash
-cd /home/killian/Documents/dev/oc-internal-schedule
-npm install
-```
-
-2. Add the plugin and the skill path in your OpenCode config:
+Example `opencode.json`:
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["/home/killian/Documents/dev/oc-internal-schedule"],
-  "skills": {
-    "paths": ["/home/killian/Documents/dev/oc-internal-schedule/skill"]
-  }
+  "plugin": ["@aidalinfo/oc-internal-schedule"]
 }
 ```
 
-3. Restart OpenCode.
+Restart OpenCode after updating the config.
 
-4. Verify that OpenCode now exposes:
+### Verify that OpenCode now exposes:
 
 - plugin tools:
   - `schedule_self_message`
   - `list_scheduled_self_messages`
   - `cancel_scheduled_self_message`
-- skill:
-  - `oc-internal-schedule`
 
-## Skill
+The plugin also injects native usage guidance into the agent prompt, so the agent can often learn to use the tools even without the optional skill.
+
+## Skill (Optional)
+
+The companion skill is optional. The plugin already teaches the agent the core usage rules through native plugin hooks.
+
+Use the skill only if you want extra examples and more explicit teaching material.
 
 The companion skill teaches the agent:
 
@@ -62,9 +58,9 @@ Skill name:
 
 - `oc-internal-schedule`
 
-Skill file:
+Skill setup details are documented in:
 
-- `/home/killian/Documents/dev/oc-internal-schedule/skill/oc-internal-schedule/SKILL.md`
+- `skill/README.md`
 
 ## Test Prompts
 
@@ -116,8 +112,9 @@ Current limitation:
 
 ## Why this matters
 
-OpenCode already exposes the key primitive needed for a real internal reminder tool:
+OpenCode already exposes the key primitives needed for a real internal reminder tool:
 
+- `POST /session/:sessionID/message`
 - `POST /session/:sessionID/prompt_async`
 
 This prototype proves the missing layer:
@@ -203,3 +200,11 @@ The tests cover:
 
 - the standalone scheduler prototype against a mock HTTP server
 - the real OpenCode plugin tool flow with a mocked OpenCode client
+
+## npm Publishing
+
+This package is intended to be published as:
+
+- `@aidalinfo/oc-internal-schedule`
+
+The repository includes a GitHub Actions workflow that publishes to npm using the `NPM_TOKEN` secret.
