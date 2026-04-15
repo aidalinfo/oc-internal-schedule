@@ -1,0 +1,17 @@
+{
+  "name": "oc-internal-schedule",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./server": "./index.js"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.4.6"
+  }
+}
