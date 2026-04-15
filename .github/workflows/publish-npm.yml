@@ -3,8 +3,8 @@ name: Publish npm package
 on:
   workflow_dispatch:
   push:
-    tags:
-      - "v*"
+    branches:
+      - main
 
 jobs:
   publish:
@@ -30,7 +30,31 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Check whether version already exists on npm
+        id: npm_version
+        shell: bash
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+
+          echo "package_name=$PACKAGE_NAME" >> "$GITHUB_OUTPUT"
+          echo "package_version=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
+
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Version $PACKAGE_VERSION already exists on npm for $PACKAGE_NAME"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Version $PACKAGE_VERSION does not exist yet on npm for $PACKAGE_NAME"
+          fi
+
       - name: Publish to npm
+        if: steps.npm_version.outputs.exists == 'false'
         run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Skip publish
+        if: steps.npm_version.outputs.exists == 'true'
+        run: |
+          echo "Skipping publish for ${{ steps.npm_version.outputs.package_name }}@${{ steps.npm_version.outputs.package_version }} because it already exists on npm."
